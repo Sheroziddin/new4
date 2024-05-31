@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing App</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #drawingCanvas {
+            border: 1px solid black;
+            width: 80vw;
+            height: 80vw;
+            max-width: 500px;
+            max-height: 500px;
+            touch-action: none;
+        }
+        .button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <canvas id="drawingCanvas"></canvas>
+        <br>
+        <button class="button" onclick="clearCanvas()">Clear</button>
+        <button class="button" onclick="sendDrawing()">Send</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const context = canvas.getContext('2d');
+        let drawing = false;
+
+        // Получаем размеры холста
+        const rect = canvas.getBoundingClientRect();
+        const scale = window.devicePixelRatio;
+
+        canvas.width = rect.width * scale;
+        canvas.height = rect.height * scale;
+        context.scale(scale, scale);
+
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchmove', draw);
+
+        function startDrawing(event) {
+            drawing = true;
+            draw(event);
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            context.beginPath();
+        }
+
+        function draw(event) {
+            event.preventDefault();
+            if (!drawing) return;
+            const touch = event.touches[0];
+            context.lineWidth = 5; // Увеличиваем толщину линии
+            context.lineCap = 'round';
+            context.strokeStyle = 'black';
+            // Пересчитываем координаты к локальным координатам холста
+            const x = (touch.clientX - rect.left) * scale - canvas.offsetLeft;
+            const y = (touch.clientY - rect.top) * scale - canvas.offsetTop;
+            context.lineTo(x, y);
+            context.stroke();
+            context.beginPath();
+            context.moveTo(x, y);
+        }
+
+        function clearCanvas() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function sendDrawing() {
+            const dataUrl = canvas.toDataURL();
+            // Тут может быть ваш код для отправки рисунка
+        }
+    </script>
+</body>
+</html>
